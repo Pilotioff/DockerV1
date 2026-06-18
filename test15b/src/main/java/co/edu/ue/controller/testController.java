@@ -20,9 +20,14 @@ public class testController {
 	
 	@GetMapping(value="/saludar")
 	public String hello() {
-		return "Hola estudiantes de la 15B";
+		return "Hola al grupo de tres";
 	}
 	
+	@GetMapping(value="/test_ci")
+    public String ci() {
+        return "Hola desde CI con GitHub Actions";
+    }
+
 	@GetMapping(value="/sumar")
     public int sumar(
             @RequestParam int numero1,
