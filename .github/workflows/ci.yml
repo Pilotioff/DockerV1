@@ -40,3 +40,22 @@ jobs:
 
       - name: Publicar imagen en DockerHub
         run: docker push pilotioff/backend-springboot:latest
+  
+  deploy-backend:
+    needs: build-backend
+    runs-on: self-hosted
+
+    steps:
+      - name: Actualizar contenedor backend
+        run: |
+          cd /Users/delta/Downloads/proyecto_docker_compose_limpio
+          docker-compose pull backend
+          docker-compose up -d backend
+
+      - name: Instalar Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Iniciar servicios con Docker Compose
+        run: docker-compose up -d
