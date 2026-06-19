@@ -29,5 +29,5 @@ jobs:
       - name: Compilar proyecto god
         run: ./mvnw clean package -DskipTests
 
-      - name: COnstruir imagen Docker
+      - name: Construir imagen Docker
         run: docker build -t backend-springod .
