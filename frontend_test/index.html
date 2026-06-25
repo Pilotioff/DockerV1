@@ -3,74 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <title>Frontend Spring Boot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+        .page { padding: 2rem 1.5rem; max-width: 640px; margin: 0 auto; }
+        .header { margin-bottom: 2rem; }
+        .header h1 { font-size: 22px; font-weight: 500; }
+        .header p { font-size: 14px; color: #666; margin-top: 4px; }
+        .card { background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+        .card-title { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        .card-title i { font-size: 16px; }
+        button { background: #fff; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; transition: background 0.15s; }
+        button:hover { background: #f0f0f0; }
+        input[type=number] { border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
+        input[type=number]:focus { border-color: #888; }
+        .result-box { background: #f5f5f5; border-radius: 8px; padding: 0.75rem 1rem; font-size: 15px; min-height: 44px; display: flex; align-items: center; margin-top: 0.75rem; border: 0.5px solid #e0e0e0; color: #555; }
+        .input-row { display: flex; gap: 8px; align-items: center; }
+        .input-row input { flex: 1; }
+        .list-result { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 6px; }
+        .list-item { background: #f5f5f5; border-radius: 8px; padding: 0.6rem 1rem; font-size: 13px; border: 0.5px solid #e0e0e0; font-family: monospace; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 8px; flex-shrink: 0; }
+        .dot.ok { background: #22c55e; }
+        .dot.err { background: #ef4444; }
+    </style>
 </head>
 <body>
+    <div class="page">
+        <div class="header">
+            <h1>Consumo API Spring Boot</h1>
+            <p>Interfaz de prueba para los endpoints del backend</p>
+        </div>
 
-    <h1>Consumo API Spring Boot</h1>
+        <div class="card">
+            <div class="card-title"><i class="ti ti-message-circle"></i> Saludar</div>
+            <button onclick="saludar()">Probar /saludar</button>
+            <div class="result-box" id="resultadoSaludo" style="color:#aaa;font-size:13px">El resultado aparece aquí</div>
+        </div>
 
-    <h2>Saludar</h2>
-    <button onclick="saludar()">Probar /saludar</button>
-    <p id="resultadoSaludo"></p>
+        <div class="card">
+            <div class="card-title"><i class="ti ti-calculator"></i> Sumar dos números</div>
+            <div class="input-row">
+                <input type="number" id="numero1" placeholder="Número 1">
+                <input type="number" id="numero2" placeholder="Número 2">
+                <button onclick="sumar()">Sumar</button>
+            </div>
+            <div class="result-box" id="resultadoSuma" style="color:#aaa;font-size:13px">El resultado aparece aquí</div>
+        </div>
 
-    <h2>Sumar dos números</h2>
-    <input type="number" id="numero1" placeholder="Número 1">
-    <input type="number" id="numero2" placeholder="Número 2">
-    <button onclick="sumar()">Sumar</button>
-    <p id="resultadoSuma"></p>
-
-    <h2>Lista desde base de datos</h2>
-    <button onclick="listar()">Consultar /lista</button>
-    <ul id="listaDatos"></ul>
+        <div class="card">
+            <div class="card-title"><i class="ti ti-database"></i> Lista desde base de datos</div>
+            <button onclick="listar()">Consultar /lista</button>
+            <div class="list-result" id="listaDatos"></div>
+        </div>
+    </div>
 
     <script>
         const API_URL = "http://localhost:8091";
 
+        function setResult(id, text, isError) {
+            const el = document.getElementById(id);
+            el.style.color = '#1a1a1a';
+            el.style.fontSize = '15px';
+            el.innerHTML = `<span class="dot ${isError ? 'err' : 'ok'}"></span>${text}`;
+        }
+
         function saludar() {
+            const el = document.getElementById("resultadoSaludo");
+            el.innerHTML = '<span style="color:#aaa;font-size:13px">Cargando...</span>';
             fetch(`${API_URL}/saludar`)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("resultadoSaludo").innerText = data;
-                })
-                .catch(error => {
-                    document.getElementById("resultadoSaludo").innerText = "Error al consumir /saludar";
-                    console.error(error);
-                });
+                .then(r => r.text())
+                .then(data => setResult("resultadoSaludo", data, false))
+                .catch(() => setResult("resultadoSaludo", "Error al consumir /saludar", true));
         }
 
         function sumar() {
-            const numero1 = document.getElementById("numero1").value;
-            const numero2 = document.getElementById("numero2").value;
-
-            fetch(`${API_URL}/sumar?numero1=${numero1}&numero2=${numero2}`)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("resultadoSuma").innerText = "Resultado: " + data;
-                })
-                .catch(error => {
-                    document.getElementById("resultadoSuma").innerText = "Error al consumir /sumar";
-                    console.error(error);
-                });
+            const n1 = document.getElementById("numero1").value;
+            const n2 = document.getElementById("numero2").value;
+            const el = document.getElementById("resultadoSuma");
+            el.innerHTML = '<span style="color:#aaa;font-size:13px">Calculando...</span>';
+            fetch(`${API_URL}/sumar?numero1=${n1}&numero2=${n2}`)
+                .then(r => r.text())
+                .then(data => setResult("resultadoSuma", "Resultado: " + data, false))
+                .catch(() => setResult("resultadoSuma", "Error al consumir /sumar", true));
         }
 
         function listar() {
+            const lista = document.getElementById("listaDatos");
+            lista.innerHTML = '<div class="list-item" style="color:#aaa">Cargando...</div>';
             fetch(`${API_URL}/lista`)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
-                    const lista = document.getElementById("listaDatos");
-                    lista.innerHTML = "";
-
-                    data.forEach(item => {
-                        const li = document.createElement("li");
-                        li.textContent = JSON.stringify(item);
-                        lista.appendChild(li);
-                    });
+                    if (!data.length) { lista.innerHTML = '<div class="list-item">Sin datos</div>'; return; }
+                    lista.innerHTML = data.map(item => `<div class="list-item">${JSON.stringify(item)}</div>`).join('');
                 })
-                .catch(error => {
-                    console.error(error);
-                    document.getElementById("listaDatos").innerHTML = "<li>Error al consumir /lista</li>";
+                .catch(() => {
+                    lista.innerHTML = '<div class="list-item" style="color:#ef4444">Error al consumir /lista</div>';
                 });
         }
     </script>
-
 </body>
 </html>
